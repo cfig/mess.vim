@@ -1,0 +1,8 @@
+#!/bin/sh
+set -x
+nvim \
+-c ":call mess#PrintProjects()" \
+-c ":sleep 200m" \
+-c ":call mess#ShowPath()" \
+-c ":sleep 3" \
+-c ":q"

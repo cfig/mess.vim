@@ -239,3 +239,6 @@ function! Demo()
   echom s:LOG_TAG . "Your input is " . name
   return name
 endfunction
+
+" Commands {{{1
+command! -nargs=0 DB call mess#PrintProjects()
