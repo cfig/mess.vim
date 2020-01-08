@@ -22,7 +22,7 @@ endfunction
 
 "return: type: dict
 "        value: <k, v> = <projId, projName>
-function! GetProjects()
+function! mess#GetProjects()
   let ret = {} "empty dict
   if isdirectory(s:PROJ_DIR)
     for item in split(glob(s:PROJ_DIR . "/*"), "\n") "~/.proj_db/1, ~/.proj_db/2
@@ -37,8 +37,8 @@ function! GetProjects()
 endfunction
 
 "return: none
-function! PrintProjects()
-  let projects = GetProjects()
+function! mess#PrintProjects()
+  let projects = mess#GetProjects()
   for k in keys(projects)
     if $SELECT_PROJECT_DB ==# k
       echom "* " . k . " - " . projects[k]
@@ -51,8 +51,8 @@ endfunction
 "return: type: String,
 "        value: selected project id, or "-1" if none
 function! mess#SelectProject()
-  call PrintProjects()
-  if len(GetProjects()) ==# 0
+  call mess#PrintProjects()
+  if len(mess#GetProjects()) ==# 0
     return "-1"
   endif
   call inputsave()
@@ -64,7 +64,7 @@ function! mess#SelectProject()
   endif
   echo "\n"
   call s:LOGD(s:LOG_TAG . "Your input is [" . projId . "]")
-  let projectIds = keys(GetProjects())
+  let projectIds = keys(mess#GetProjects())
   if -1 ==# index(projectIds, projId)
     let projId = "-1"
     call s:LOGD("ERROR: Invalid project id: " . projId)
@@ -144,6 +144,36 @@ EOF
 endfunction
 
 function! mess#RemovePath(inDir)
+  if $SELECT_PROJECT_DB ==# -1 || $SELECT_PROJECT_DB ==# ""
+    echom "no project selected"
+    return
+  endif
+  let SESSION_DIR = s:PROJ_DIR . "/" . $SELECT_PROJECT_DB
+  let PROJ_FILELIST = SESSION_DIR . "/projlist"
+python3 << EOF
+import vim
+import os, os.path
+fileList = vim.eval("PROJ_FILELIST")
+newLines = []
+inDir = os.path.realpath(vim.eval("a:inDir"))
+if os.path.isfile(fileList):
+    with open(fileList, "r") as fd:
+        lines = fd.readlines()
+        bHandled = False
+        for line in lines:
+            if (inDir + "/") == (line.strip()+"/"):
+                print("Path [%s] removed" % inDir)
+                bHandled = True
+            else:
+                newLines.append(line.strip())
+                #if len(newLines) == 0:
+                #    print("Add first dir [%s] into project" % inDir)
+if not bHandled:
+    print("Path [%s] not in project list, not removed" % inDir)
+with open(fileList, "w") as fd:
+    for line in set(newLines):
+        fd.write(line + "\n")
+EOF
 endfunction
 
 "return: none
@@ -153,7 +183,7 @@ function! CreateProject(inName)
     call s:LOGD("project name can not be blank")
     return
   endif
-  let projects = GetProjects()
+  let projects = mess#GetProjects()
   "ensure project name not taken
   if -1 !=# index(values(projects), a:inName)
     echom expand("project '" . a:inName . "' already exists")
@@ -175,6 +205,30 @@ function! CreateProject(inName)
     call EnsureDirExists(s:PROJ_DIR . "/" . projId)
     call writefile([ a:inName ] , s:PROJ_DIR . "/" . projId . "/name")
   endif
+endfunction
+
+function! mess#ShowPath()
+  if $SELECT_PROJECT_DB ==# -1 || $SELECT_PROJECT_DB ==# ""
+    echom "no project selected"
+    return
+  endif
+  let SESSION_DIR = s:PROJ_DIR . "/" . $SELECT_PROJECT_DB
+  let PROJ_FILELIST = SESSION_DIR . "/projlist"
+  echom "---------------List of Project Folder------------------"
+  for line in readfile(fnameescape(PROJ_FILELIST))
+    echom line
+  endfor
+  echom "-------------------------------------------------------"
+endfunction
+
+function! mess#CleanProject()
+  if $SELECT_PROJECT_DB ==# -1 || $SELECT_PROJECT_DB ==# ""
+    echom "no project selected"
+    return
+  endif
+  let SESSION_DIR = s:PROJ_DIR . "/" . $SELECT_PROJECT_DB
+  let PROJ_FILELIST = SESSION_DIR . "/projlist"
+  echom "Preparing to clean up project " . SELECT_PROJECT_DB
 endfunction
 
 function! Demo()
