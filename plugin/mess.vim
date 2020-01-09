@@ -53,6 +53,7 @@ endfunction
 function! mess#SelectProject()
   call mess#PrintProjects()
   if len(mess#GetProjects()) ==# 0
+    call s:LOGD("no avail projects")
     return "-1"
   endif
   call inputsave()
@@ -77,7 +78,10 @@ endfunction
 "return: none
 function! mess#OnProjectSelected(selectedProj)
   call s:LOGD("a:selectedProj is [" . a:selectedProj . "]")
-  if "-1" !=# a:selectedProj
+  if "-1" ==# a:selectedProj
+    call s:LOGD("invalid a:selectedProj [" . a:selectedProj . "]")
+    return
+  else
     "change env var if necessary
     if $SELECT_PROJECT_DB !=# a:selectedProj
       call s:LOGD("env var SELECT_PROJECT_DB is changed from [" . $SELECT_PROJECT_DB . "] -> [" . a:selectedProj . "]")
@@ -86,19 +90,23 @@ function! mess#OnProjectSelected(selectedProj)
       call s:LOGD("env var SELECT_PROJECT_DB remain unchanged [" . $SELECT_PROJECT_DB . "]")
     endif
     "for cscope
-    let csData = expand("$HOME/.proj_db/$SELECT_PROJECT_DB/cscope.out")
-    call s:LOGD(csData)
-    if filereadable(csData)
-      " for M$ compatible
-      cd $HOME
-      echom "Loading " . csData
-      cs add .proj_db/$SELECT_PROJECT_DB/cscope.out
-      cd -
-    else
-      echom "cscope index files not found"
-    endif
+    call mess#LoadCscopeData()
+  endif
+endfunction
+
+function! mess#LoadCscopeData()
+  "map keys
+  nnoremap <silent> <F3> :call fzf#run({'source': 'cat $HOME/.proj_db/$SELECT_PROJECT_DB/cscope.files', 'sink': 'edit'})<CR>
+  let csData = expand("$HOME/.proj_db/$SELECT_PROJECT_DB/cscope.out")
+  call s:LOGD(csData)
+  if filereadable(csData)
+    " for M$ compatible
+    cd $HOME
+    echom "Loading " . csData
+    cs add .proj_db/$SELECT_PROJECT_DB/cscope.out
+    cd -
   else
-    call s:LOGD("invalid a:selectedProj [" . a:selectedProj . "]")
+    echom "cscope files not found"
   endif
 endfunction
 
@@ -242,3 +250,11 @@ endfunction
 
 " Commands {{{1
 command! -nargs=0 DB call mess#PrintProjects()
+
+" Key mapping
+nnoremap <silent> <F10> :call mess#OnProjectSelected(mess#SelectProject())<CR>
+
+" init
+if $SELECT_PROJECT_DB !=# ""
+  call mess#LoadCscopeData()
+endif
