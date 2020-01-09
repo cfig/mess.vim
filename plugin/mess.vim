@@ -2,6 +2,15 @@ let s:PROJ_DIR = $HOME . "/.proj_db"
 let s:LOG_TAG = "[DB] "
 let s:DEBUG = 0
 let s:MAX_PROJECT_NUM = 100
+let s:plugin_root_dir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
+python3 << EOF
+import sys, os.path
+import vim
+plugin_root_dir = vim.eval('s:plugin_root_dir')
+python_root_dir = os.path.normpath(os.path.join(plugin_root_dir, '..', 'python'))
+sys.path.insert(0, python_root_dir)
+import mess
+EOF
 
 function! s:LOGD(msg)
   if s:DEBUG
@@ -258,3 +267,11 @@ nnoremap <silent> <F10> :call mess#OnProjectSelected(mess#SelectProject())<CR>
 if $SELECT_PROJECT_DB !=# ""
   call mess#LoadCscopeData()
 endif
+
+function! PrintCountry()
+  python3 mess.print_country()
+endfunction
+
+function! BuildIndex()
+  python3 mess.run()
+endfunction
