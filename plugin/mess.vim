@@ -248,15 +248,6 @@ function! mess#CleanProject()
   echom "Preparing to clean up project " . SELECT_PROJECT_DB
 endfunction
 
-function! Demo()
-  call inputsave()
-  let name = input('Enter Project Id: ')
-  call inputrestore()
-  echo "\n"
-  echom s:LOG_TAG . "Your input is " . name
-  return name
-endfunction
-
 " Commands {{{1
 command! -nargs=0 DB call mess#PrintProjects()
 
@@ -264,13 +255,10 @@ command! -nargs=0 DB call mess#PrintProjects()
 nnoremap <silent> <F10> :call mess#OnProjectSelected(mess#SelectProject())<CR>
 
 " init
-if $SELECT_PROJECT_DB !=# ""
-  call mess#LoadCscopeData()
-endif
-
-function! PrintCountry()
-  python3 mess.print_country()
-endfunction
+" DO NOT load data automatically
+"if $SELECT_PROJECT_DB !=# ""
+"  call mess#LoadCscopeData()
+"endif
 
 function! BuildIndex()
   python3 mess.run()
