@@ -256,9 +256,9 @@ nnoremap <silent> <F10> :call mess#OnProjectSelected(mess#SelectProject())<CR>
 
 " init
 " DO NOT load data automatically
-"if $SELECT_PROJECT_DB !=# ""
-"  call mess#LoadCscopeData()
-"endif
+if $SELECT_PROJECT_DB !=# ""
+  call mess#LoadCscopeData()
+endif
 
 function! BuildIndex()
   python3 mess.run()
