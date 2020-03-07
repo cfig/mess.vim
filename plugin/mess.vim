@@ -111,7 +111,7 @@ function! mess#LoadCscopeData()
   if filereadable(csData)
     " for M$ compatible
     cd $HOME
-    echom "Loading " . csData
+    "echom "Loading " . csData
     cs add .proj_db/$SELECT_PROJECT_DB/cscope.out
     cd -
   else
