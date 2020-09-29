@@ -19,8 +19,8 @@ target_link_libraries(hello log)
 # for YCM
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
-  EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink
+IF(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json")
+  EXECUTE_PROCESS(COMMAND ln -s 
     ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
     ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
   )
