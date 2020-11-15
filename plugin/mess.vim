@@ -106,6 +106,7 @@ endfunction
 function! mess#LoadCscopeData()
   "map keys
   nnoremap <silent> <F3> :call fzf#run({'source': 'cat $HOME/.proj_db/$SELECT_PROJECT_DB/cscope.files', 'sink': 'edit'})<CR>
+  nnoremap <leader>o :call fzf#run({'source': 'cat $HOME/.proj_db/$SELECT_PROJECT_DB/cscope.files', 'sink': 'edit'})<CR>
   let csData = expand("$HOME/.proj_db/$SELECT_PROJECT_DB/cscope.out")
   call s:LOGD(csData)
   if filereadable(csData)
