@@ -12,6 +12,9 @@ sys.path.insert(0, python_root_dir)
 import mess
 EOF
 
+" inital mapping before database is loaded
+nnoremap <leader>o :<Esc>
+
 function! s:LOGD(msg)
   if s:DEBUG
     echom s:LOG_TAG . a:msg
