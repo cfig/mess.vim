@@ -13,7 +13,8 @@ import mess
 EOF
 
 " inital mapping before database is loaded
-nnoremap <leader>o :<Esc>
+nnoremap <silent> <F3> :echo "[DB] no project selected"<Esc>
+nnoremap <leader>o :echo "[DB] no project selected"<Esc>
 
 function! s:LOGD(msg)
   if s:DEBUG
